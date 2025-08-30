@@ -1,0 +1,14 @@
+fastapi
+uvicorn
+gunicorn
+httpx
+python-jose[jwt]
+passlib[bcrypt]
+sqlalchemy
+psycopg2-binary
+redis
+slowapi
+pydantic[email]
+python-multipart
+twilio
+marked
