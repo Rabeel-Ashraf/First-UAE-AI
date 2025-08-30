@@ -1,0 +1,27 @@
+# Development dependencies for First UAE AI
+# OrionixLabs.com | Dubai, UAE
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+pytest-cov==4.1.0
+httpx==0.25.0
+
+# Linting and formatting
+black==23.10.1
+flake8==6.1.0
+isort==5.12.0
+mypy==1.6.1
+
+# Development tools
+jupyter==1.0.0
+ipykernel==6.26.0
+python-dotenv==1.0.0
+
+# Documentation
+sphinx==7.1.2
+sphinx-rtd-theme==1.3.0
+
+# Security
+bandit==1.7.5
+safety==2.3.5
