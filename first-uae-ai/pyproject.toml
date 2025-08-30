@@ -1,0 +1,64 @@
+# First UAE AI - OrionixLabs.com | Dubai, UAE
+# Project configuration
+
+[build-system]
+requires = ["setuptools>=45", "wheel", "setuptools_scm[toml]>=6.2"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "first-uae-ai"
+version = "1.0.0"
+description = "First UAE AI - Dubai's first branded AI assistant developed by OrionixLabs.com"
+readme = "README.md"
+authors = [{name = "OrionixLabs", email = "contact@orionixlabs.com"}]
+license = {text = "MIT"}
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Python Modules"
+]
+keywords = ["ai", "uae", "dubai", "chatbot", "deepseek", "fastapi"]
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.104.1",
+    "uvicorn>=0.24.0",
+    "sqlalchemy>=2.0.23",
+    "python-jose[jwt]>=3.3.0",
+    "passlib[bcrypt]>=1.7.4",
+    "redis>=5.0.1",
+    "httpx>=0.25.0"
+]
+
+[project.urls]
+Homepage = "https://orionixlabs.com"
+Repository = "https://github.com/orionixlabs/first-uae-ai"
+Documentation = "https://github.com/orionixlabs/first-uae-ai/wiki"
+
+[tool.setuptools_scm]
+version_scheme = "release-branch-semver"
+local_scheme = "no-local-version"
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    | migrations
+    | node_modules
+    | .git
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+skip = [
+    "migrations",
+    "node_modules",
+    ".git"
+]
