@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>First UAE AI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    body {
+      @apply bg-gray-900 text-white;
+      background: url('https://images.unsplash.com/photo-1591799264315-5ab106783713?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+      background-size: cover;
+      font-family: 'Segoe UI', sans-serif;
+    }
+    .chat-box {
+      @apply bg-black bg-opacity-60 backdrop-blur-sm rounded-lg p-4 max-h-96 overflow-y-auto mb-4 space-y-2;
+    }
+    .input-area {
+      @apply flex bg-black bg-opacity-60 backdrop-blur-sm rounded-lg overflow-hidden;
+    }
+    .send-btn {
+      @apply bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 px-6 py-3 font-bold text-white;
+    }
+    .message {
+      @apply p-3 rounded-lg max-w-xs my-1 leading-relaxed;
+    }
+    .user-msg {
+      @apply bg-blue-600 ml-auto text-white;
+    }
+    .ai-msg {
+      @apply bg-gradient-to-r from-indigo-900 to-purple-900 text-white;
+    }
+    .logo {
+      font-size: 1.8rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, #fbbf24, #f97316, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .loader {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px dotted #fff;
+      border-radius: 50%;
+      border-top-color: transparent;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <div class="container mx-auto p-4 max-w-2xl">
+    <!-- Header -->
+    <div class="text-center mb-6">
+      <img src="../../public/logo.svg" alt="First UAE AI" class="w-64 mx-auto mb-2" />
+      <p class="text-gray-300">Your intelligent assistant, built with pride in Dubai 🇦🇪</p>
+    </div>
+
+    <!-- Chat Box -->
+    <div id="chat" class="chat-box">
+      <div class="message ai-msg">
+        <b>First UAE AI:</b> مرحباً! أنا أول ذكاء اصطناعي في الإمارات. كيف يمكنني مساعدتك؟
+      </div>
+    </div>
+
+    <!-- Input -->
+    <div class="input-area">
+      <input
+        id="input"
+        type="text"
+        class="bg-transparent px-4 py-3 outline-none w-full text-white placeholder-gray-400"
+        placeholder="اكتب سؤالك هنا..."
+        onkeypress="if(event.key==='Enter') send()"
+      />
+      <button onclick="send()" class="send-btn flex items-center justify-center">
+        <i class="fas fa-paper-plane"></i>
+      </button>
+    </div>
+
+    <!-- Footer -->
+    <div class="text-center mt-6 text-sm text-gray-400">
+      Developed by <a href="https://orionixlabs.com" target="_blank" class="text-purple-400 hover:underline">OrionixLabs.com</a> • Dubai, UAE
+    </div>
+  </div>
+
+  <script>
+    const chat = document.getElementById("chat");
+    const input = document.getElementById("input");
+
+    // Replace with your deployed backend URL
+    const API_BASE = "http://localhost:8000";
+    const TOKEN = "your-jwt-token"; // Get from login
+
+    async function send() {
+      const text = input.value.trim();
+      if (!text) return;
+
+      addMessage(text, "user-msg");
+      input.value = "";
+
+      // Show typing indicator
+      const loader = document.createElement("div");
+      loader.className = "message ai-msg flex items-center";
+      loader.innerHTML = '<div class="loader"></div> <span class="ml-2">يَستجيب...</span>';
+      chat.appendChild(loader);
+
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/chat/completions`, {
+          method: "POST",
+          headers: {
+            "Authorization": `Bearer ${TOKEN}`,
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            model: "deepseek-chat",
+            messages: [{ role: "user", content: text }],
+            temperature: 0.7
+          })
+        });
+
+        const data = await res.json();
+        chat.removeChild(loader);
+
+        const reply = data.choices[0].message.content;
+        addMessage(reply, "ai-msg");
+      } catch (err) {
+        chat.removeChild(loader);
+        addMessage("فشل الاتصال بالذكاء الاصطناعي. حاول مرة أخرى.", "ai-msg");
+      }
+    }
+
+    function addMessage(text, cls) {
+      const div = document.createElement("div");
+      div.className = `message ${cls}`;
+      const tempDiv = document.createElement("div");
+      tempDiv.innerHTML = marked.parse(text) || text.replace(/\n/g, "<br>");
+      div.innerHTML = `<b>${cls.includes('user') ? 'أنت' : 'First UAE AI'}:</b> ${tempDiv.innerHTML}`;
+      chat.appendChild(div);
+      chat.scrollTop = chat.scrollHeight;
+    }
+  </script>
+</body>
+</html>
