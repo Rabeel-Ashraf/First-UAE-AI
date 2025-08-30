@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin - First UAE AI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+  <style>
+    body {
+      @apply bg-gray-900 text-white;
+      background: url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+      background-size: cover;
+    }
+    .logo {
+      font-size: 1.75rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, #fbbf24, #f97316, #ec4899);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .card {
+      @apply bg-black bg-opacity-60 backdrop-blur-sm rounded-lg p-6 mb-6;
+    }
+    .btn {
+      @apply bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 text-white font-bold py-2 px-4 rounded;
+    }
+    table {
+      @apply w-full text-sm;
+    }
+    th {
+      @apply text-left p-2 bg-gray-800;
+    }
+    td {
+      @apply p-2 border-b border-gray-700;
+    }
+  </style>
+</head>
+<body class="min-h-screen p-6">
+  <div class="max-w-6xl mx-auto">
+    <!-- Header -->
+    <div class="text-center mb-8">
+      <img src="../../public/logo.svg" alt="First UAE AI" class="w-64 mx-auto mb-2" />
+      <h1 class="text-2xl font-bold">Admin Dashboard</h1>
+      <p class="text-gray-300">View and monitor all AI interactions</p>
+    </div>
+
+    <!-- Login -->
+    <div id="loginSection" class="card text-center">
+      <h2 class="text-xl mb-4">🔐 Admin Login</h2>
+      <input
+        type="password"
+        id="adminKey"
+        placeholder="Enter Admin Key"
+        class="p-3 bg-gray-800 rounded mb-4 w-full max-w-xs"
+      />
+      <button onclick="loginAdmin()" class="btn">
+        <i class="fas fa-sign-in-alt"></i> Login
+      </button>
+    </div>
+
+    <!-- Logs Table -->
+    <div id="logsSection" class="card hidden">
+      <h2 class="text-xl mb-4">📋 Chat Logs</h2>
+      <button onclick="refreshLogs()" class="btn mb-4">
+        <i class="fas fa-sync"></i> Refresh
+      </button>
+      <div class="overflow-x-auto">
+        <table id="logTable">
+          <thead>
+            <tr>
+              <th>User</th>
+              <th>Prompt</th>
+              <th>Response</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const loginSection = document.getElementById("loginSection");
+    const logsSection = document.getElementById("logsSection");
+
+    async function loginAdmin() {
+      const key = document.getElementById("adminKey").value;
+      if (!key) return alert("Please enter admin key");
+
+      try {
+        const res = await fetch("/api/admin/logs", {
+          headers: { "X-Admin-Key": key }
+        });
+
+        if (res.ok) {
+          localStorage.setItem("adminKey", key);
+          loginSection.classList.add("hidden");
+          logsSection.classList.remove("hidden");
+          loadLogs();
+        } else {
+          alert("❌ Access Denied. Invalid admin key.");
+        }
+      } catch (err) {
+        alert("Error connecting to server.");
+      }
+    }
+
+    async function loadLogs() {
+      const key = localStorage.getItem("adminKey");
+      const tbody = document.querySelector("#logTable tbody");
+      tbody.innerHTML = "<tr><td colspan='4'>Loading...</td></tr>";
+
+      try {
+        const res = await fetch("/api/admin/logs", {
+          headers: { "X-Admin-Key": key }
+        });
+
+        if (!res.ok) throw new Error();
+
+        const logs = await res.json();
+        tbody.innerHTML = "";
+
+        logs.forEach(log => {
+          const row = tbody.insertRow();
+          row.innerHTML = `
+            <td class="font-medium">${log.user}</td>
+            <td>${log.prompt.substring(0, 100)}...</td>
+            <td>${log.response?.substring(0, 100) || '...'}</td>
+            <td>${new Date(log.time).toLocaleString()}</td>
+          `;
+        });
+      } catch (err) {
+        tbody.innerHTML = "<tr><td colspan='4'>Failed to load logs</td></tr>";
+      }
+    }
+
+    function refreshLogs() {
+      loadLogs();
+    }
+
+    // Auto-login if already logged in
+    if (localStorage.getItem("adminKey")) {
+      loginSection.classList.add("hidden");
+      logsSection.classList.remove("hidden");
+      loadLogs();
+    }
+  </script>
+</body>
+</html>
